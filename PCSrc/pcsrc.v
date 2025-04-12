@@ -1,4 +1,4 @@
-module PCSrc(
+module PCSrc (
     input wire Branch,         	// Sinal de branch
     input wire Jump,           	// Sinal de jump
   	input wire [31:0] PCPlus4,  // PCPlus4
