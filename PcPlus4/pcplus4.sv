@@ -1,4 +1,4 @@
-module PC_Register(
+module PCPlus4(
     input clk,
     input reset,
     input [31:0] next_PC,
