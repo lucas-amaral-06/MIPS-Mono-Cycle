@@ -26,7 +26,7 @@ module PC_System(
 );
     wire [31:0] next_PC;
     
-    PC_Register pc_reg (
+    PCPlus4 pc_reg (
         .clk(clk),
         .reset(reset),
         .next_PC(next_PC),
