@@ -1,0 +1,5 @@
+[2025-04-12 14:51:07 UTC] iverilog '-Wall' '-g2012' design.sv testbench.sv  && unbuffer vvp a.out  
+PC=00001000, Offset=0004 -> PCBranch=00001014
+PC=00001000, Offset=fffc -> PCBranch=00000ff4
+design.sv:22: $finish called at 30 (1s)
+Done
