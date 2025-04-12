@@ -10,15 +10,14 @@ module PCBranch_tb;
         PC = 32'h1000;       // Endereço inicial
         immediate = 16'h0004; // Offset +4
         #10;
-        $display("PC=%h, Offset=%h → PCBranch=%h (Esperado: 1014)", 
+      $display("PC=%h, Offset=%h -> PCBranch=%h", 
                  PC, immediate, PCBranch);
 
         // Teste 2: salto negativo
         PC = 32'h1000;
         immediate = 16'hFFFC; // Offset -4
         #10;
-        $display("Teste 2 - Salto Negativo:");
-        $display("PC=%h, Offset=%h → PCBranch=%h (Esperado: 0FF4)", 
+      $display("PC=%h, Offset=%h -> PCBranch=%h", 
                  PC, immediate, PCBranch);
         #10 $finish;
       
