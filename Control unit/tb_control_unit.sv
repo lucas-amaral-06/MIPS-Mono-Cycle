@@ -7,7 +7,7 @@ reg [5:0] Op;
 reg [5:0] Funct;
 
 // Outputs
-wire [2:0] ALUOp;
+wire [2:0] ALUControl;
 wire MemtoReg;
 wire MemWrite;
 wire Branch;
@@ -19,7 +19,7 @@ wire RegWrite;
 ControlUnit uut (
     .Op(Op),
     .Funct(Funct),
-    .ALUOp(ALUOp),
+    .ALUControl(ALUControl),
     .MemtoReg(MemtoReg),
     .MemWrite(MemWrite),
     .Branch(Branch),
@@ -34,8 +34,8 @@ initial begin
     Funct = 0;
 
     // Monitor signals
-    $monitor("At time %t, Op: %b, Funct: %b, ALUOp: %b, MemtoReg: %b, MemWrite: %b, Branch: %b, ALUSrc: %b, RegDst: %b, RegWrite: %b",
-             $time, Op, Funct, ALUOp, MemtoReg, MemWrite, Branch, ALUSrc, RegDst, RegWrite);
+    $monitor("At time %t, Op: %b, Funct: %b, ALUControl: %b, MemtoReg: %b, MemWrite: %b, Branch: %b, ALUSrc: %b, RegDst: %b, RegWrite: %b",
+             $time, Op, Funct, ALUControl, MemtoReg, MemWrite, Branch, ALUSrc, RegDst, RegWrite);
 
     // R-type instruction
     Op = 6'b000000; Funct = 6'b100000;
