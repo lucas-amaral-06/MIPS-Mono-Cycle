@@ -1,4 +1,4 @@
-module PC_Testbench;
+module PCPlus4_Testbench;
     reg clk;
     reg reset;
     wire [31:0] PC;
