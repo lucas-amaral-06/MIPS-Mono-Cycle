@@ -1,0 +1,7 @@
+Time=0 | reset=1 | next_PC=00000000 | PC=xxxxxxxx
+Time=5 | reset=1 | next_PC=00000000 | PC=00000000
+Time=10 | reset=0 | next_PC=00001004 | PC=00000000
+Time=15 | reset=0 | next_PC=00001004 | PC=00001004
+Time=20 | reset=0 | next_PC=00001010 | PC=00001004
+Time=25 | reset=0 | next_PC=00001010 | PC=00001010
+testbench.sv:17: $finish called at 30 (1s)
