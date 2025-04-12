@@ -1,0 +1,5 @@
+PCPlus4: 00000004
+Branch: 00001000
+Jump: 00002000
+Jump + Branch: 00002000
+design.sv:42: $finish called at 50 (1s)
