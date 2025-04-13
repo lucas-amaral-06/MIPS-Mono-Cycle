@@ -1,24 +1,22 @@
 module data_memory (
-    input wire clk,
-    input wire mem_write,
-    input wire mem_read,
-    input wire [5:0] address,
-    input wire [31:0] write_data,
-    output reg [31:0] read_data
+    input wire clk,               // Clock
+    input wire mem_write,         // Controle de escrita
+    input wire [31:0] address,    // Endereço de 32 bits
+    input wire [31:0] write_data, // Dado a ser escrito
+    output reg [31:0] read_data   // Dado lido
 );
-    reg [31:0] memory [0:63];
-    initial begin
-        memory[0] = 32'd0;
-        memory[1] = 32'd10;
-        memory[2] = 32'd20;
-        memory[3] = 32'd30;
-    end
+    
+    reg [31:0] memory [0:1023];
+
+    // Escrita síncrona
     always @(posedge clk) begin
         if (mem_write) begin
-            memory[address] <= write_data;
+            memory[address[11:2]] <= write_data;
         end
-        if (mem_read) begin
-            read_data <= memory[address];
-        end
+    end
+
+    // Leitura assíncrona
+    always @(*) begin
+        read_data = memory[address[11:2]];
     end
 endmodule
