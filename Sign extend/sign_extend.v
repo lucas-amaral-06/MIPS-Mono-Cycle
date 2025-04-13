@@ -1,8 +1,6 @@
 module sign_extend (
-  	input  [15:0] a,     // Entrada de 16 bits
-    output [31:0] y      // Saída de 32 bits
+    input [15:0] imm16,
+    output [31:0] extended
 );
-  
-    assign y = {{16{a[15]}}, a};
-  
+    assign extended = {{16{imm16[15]}}, imm16};
 endmodule
