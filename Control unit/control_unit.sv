@@ -5,7 +5,7 @@ module ControlUnit(
     input [5:0] Op, 
     input [5:0] Funct,
     output reg MemtoReg, MemWrite, Branch, ALUSrc, RegDst, RegWrite,
-    output reg [2:0] ALUControl
+    output reg [3:0] ALUControl
 );
 
 always @(Op or Funct) begin
