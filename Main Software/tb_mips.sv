@@ -47,11 +47,10 @@ module tb;
         #200;
         
         // Verificação dos resultados
-      $display("\n#-#-#-# Resultado dos Testes #-#-#-#");
-        $display("$t0 (8) = %h (Expected: 00000005)", t0);
-        $display("$t1 (9) = %h (Expected: 00000003)", t1);
-        $display("$t2 (10) = %h (Expected: 00000008)", t2);
-        $display("$t3 (11) = %h (Expected: 00000008)", t3);
+      	$display("\n#-#-#-# Resultado dos Testes #-#-#-#");
+      	$display("$t0 (5) = %h (Expected: 00000005)", t0);
+      	$display("$t1 (3) = %h (Expected: 00000003)", t1);
+      	$display("$t2 (8) = %h (Expected: 00000008)", t2);
         
         // Verificação automática
         if (t0 === 32'h00000005 && t1 === 32'h00000003 && 
