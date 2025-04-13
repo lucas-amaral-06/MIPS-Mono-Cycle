@@ -1,70 +1,39 @@
 module tb_ALU;
-
-    reg [31:0] A;
-    reg [31:0] B;
+    reg [31:0] A, B;
     reg [3:0] op;
     wire [31:0] resultado;
     wire zero_flag;
 
-    // Instanciando a ALU
-    ALU alu (
-        .A(A),
-        .B(B),
-        .op(op),
-        .resultado(resultado),
-        .zero_flag(zero_flag)
-    );
+    ALU alu (.A(A), .B(B), .op(op), .resultado(resultado), .zero_flag(zero_flag));
 
     initial begin
+        $display("Testando operações da ALU:");
+        $monitor("T=%0t op=%b A=%d B=%d | Result=%d Zero=%b", 
+                $time, op, A, B, resultado, zero_flag);
 
-        // AND
-        A = 32'd5;
-        B = 32'd3;
-        op = 4'b0000;
-        #10;
-      $display("AND: %d & %d = %d", A, B, resultado);
+        // Teste AND
+        op = 4'b0000; A = 32'b1010; B = 32'b1100; #10;
 
-        // OR
-        A = 32'd5;
-        B = 32'd3;
-        op = 4'b0001;
-        #10;
-        $display("OR: %d | %d = %d", A, B, resultado);
+        // Teste OR
+        op = 4'b0001; A = 32'b1010; B = 32'b1100; #10;
 
-        // Soma
-        A = 32'd15;
-        B = 32'd20;
-        op = 4'b0010;
-        #10;
-        $display("SOMA: %d + %d = %d", A, B, resultado);
+        // Teste ADD
+        op = 4'b0010; A = 32'd15; B = 32'd20; #10;
 
-        // Subtração
-        A = 32'd30;
-        B = 32'd12;
-        op = 4'b0110;
-        #10;
-        $display("SUB: %d - %d = %d", A, B, resultado);
+        // Teste SUB
+        op = 4'b0110; A = 32'd30; B = 32'd12; #10;
 
-        // SLT
-        A = 32'd5;
-        B = 32'd10;
-        op = 4'b0111;
-        #10;
-        $display("SLT: (%d < %d) = %d", A, B, resultado);
+        // Teste SLT (A < B)
+        op = 4'b0111; A = 32'd5; B = 32'd10; #10;
 
-        // Divisão
-        A = 32'd100;
-        B = 32'd20;
-        op = 4'b1010;
-        #10;
-        $display("DIV: %d / %d = %d", A, B, resultado);
+        // Teste SLT (A > B)
+        op = 4'b0111; A = 32'd10; B = 32'd5; #10;
 
-        // Divisão por zero
-        A = 32'd100;
-        B = 32'd0;
-        op = 4'b1010;
-        #10;
-        $display("DIV POR ZERO: %d / %d = %h", A, B, resultado);
+        // Teste DIV
+        op = 4'b1010; A = 32'd100; B = 32'd20; #10;
+
+        // Teste DIV por zero
+        op = 4'b1010; A = 32'd100; B = 32'd0; #10;
 
         $finish;
     end
