@@ -2,7 +2,7 @@ module ALU (
 
   	input [31:0] A,      // Entrada A (1° operando)
   	input [31:0] B,      // Entrada B (2° operando)
-  	input [3:0] op,      // Código da operação que será realizada (podendo conter até 04 bits)
+    input [2:0] op,      // Código da operação que será realizada (podendo conter até 03 bits)
 
   	output reg [31:0] resultado,		// Resultado da operação
     output zero_flag             		// Sinal que indica se o resultado é zero
