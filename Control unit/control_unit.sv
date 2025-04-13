@@ -1,10 +1,10 @@
 `timescale 1ns / 1ps
 
 module ControlUnit(
-    input [5:0] Op,
+    input [5:0] Op, 
     input [5:0] Funct,
-    output reg MemtoReg, MemWrite, Branch, ALUSrc, RegDst, RegWrite,
-    output reg [3:0] ALUControl  // 4 bits para compatibilidade com a ALU
+    output reg MemtoReg, MemWrite, Branch, ALUSrc, RegDst, RegWrite, Jump,
+    output reg [3:0] ALUControl
 );
 
 always @(*) begin
@@ -15,6 +15,7 @@ always @(*) begin
     ALUSrc = 0;
     RegDst = 0;
     RegWrite = 0;
+    Jump = 0;
     ALUControl = 4'b0000;
 
     case (Op)
@@ -34,18 +35,25 @@ always @(*) begin
             ALUSrc = 1;
             MemtoReg = 1;
             RegWrite = 1;
-            ALUControl = 4'b0010; // ADD
+            ALUControl = 4'b0010;
         end
         6'b101011: begin // SW
             ALUSrc = 1;
             MemWrite = 1;
-            ALUControl = 4'b0010; // ADD
+            ALUControl = 4'b0010;
         end
         6'b000100: begin // BEQ
             Branch = 1;
-            ALUControl = 4'b0110; // SUB
+            ALUControl = 4'b0110;
         end
-        // Adicione outros casos (ADDI, J, etc.) conforme necessário
+        6'b000010: begin // J
+            Jump = 1;
+        end
+        6'b001000: begin // ADDI
+            ALUSrc = 1;
+            RegWrite = 1;
+            ALUControl = 4'b0010;
+        end
     endcase
 end
 endmodule
