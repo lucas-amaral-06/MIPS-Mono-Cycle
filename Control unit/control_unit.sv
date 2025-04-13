@@ -1,14 +1,14 @@
 `timescale 1ns / 1ps
 
 module ControlUnit(
-    input [5:0] Op, 
+    input [5:0] Op,
     input [5:0] Funct,
     output reg MemtoReg, MemWrite, Branch, ALUSrc, RegDst, RegWrite,
-    output reg [3:0] ALUControl
+    output reg [3:0] ALUControl  // 4 bits para compatibilidade com a ALU
 );
 
 always @(*) begin
-    // Valores padrão
+    // Defaults
     MemtoReg = 0;
     MemWrite = 0;
     Branch = 0;
@@ -30,23 +30,22 @@ always @(*) begin
                 default:   ALUControl = 4'b0000;
             endcase
         end
-        6'b100011: begin // LW (Load Word)
+        6'b100011: begin // LW
             ALUSrc = 1;
             MemtoReg = 1;
             RegWrite = 1;
             ALUControl = 4'b0010; // ADD
         end
-        6'b101011: begin // SW (Store Word)
+        6'b101011: begin // SW
             ALUSrc = 1;
             MemWrite = 1;
             ALUControl = 4'b0010; // ADD
         end
-        6'b000100: begin // BEQ (Branch if Equal)
+        6'b000100: begin // BEQ
             Branch = 1;
             ALUControl = 4'b0110; // SUB
         end
         // Adicione outros casos (ADDI, J, etc.) conforme necessário
     endcase
 end
-
 endmodule
