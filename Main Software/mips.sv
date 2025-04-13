@@ -133,16 +133,22 @@ module InstructionMemory(
     input [31:0] address,
     output reg [31:0] instruction
 );
-    reg [31:0] memory [0:31];
+    reg [31:0] memory[0:31];
     
     initial begin
-        // Programa de teste
-        memory[0] = 32'h20080005; // addi $t0, $zero, 5
-        memory[1] = 32'h20090003; // addi $t1, $zero, 3
-        memory[2] = 32'h01095020; // add $t2, $t0, $t1
-        memory[3] = 32'hAC0A0004; // sw $t2, 4($zero)
-        memory[4] = 32'h8C0B0004; // lw $t3, 4($zero)
-        memory[5] = 32'h00000000; // nop (termina o programa)
+        // addi $t0, $zero, 5
+        memory[0] = 32'b001000_00000_01000_0000000000000101;  // Opcode 8, $zero(0), $t0(8), valor 5
+        
+        // addi $t1, $zero, 3
+        memory[1] = 32'b001000_00000_01001_0000000000000011;  // Opcode 8, $zero(0), $t1(9), valor 3
+        
+        // add $t2, $t0, $t1
+        memory[2] = 32'b000000_01000_01001_01010_00000_100000; // Opcode 0, $t0(8), $t1(9), $t2(10), funct 32
+        
+        // Preenche o resto com nops (todos zeros)
+        for (int i = 3; i < 32; i++) begin
+            memory[i] = 32'b00000000000000000000000000000000;
+        end
     end
     
     always @(*) begin
