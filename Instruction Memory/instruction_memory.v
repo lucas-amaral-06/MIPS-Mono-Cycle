@@ -1,21 +1,26 @@
 module InstructionMemory(
-    input [31:0] address,    // Endereço da instrução (PC)
-    output reg [31:0] instruction // Instrução armazenada no endereço
+    input [31:0] address,
+    output reg [31:0] instruction
 );
-
-    reg [31:0] memory [0:31]; // Memória com 32 instruções (pode ajustar o tamanho)
-
+    reg [31:0] memory[0:31];
+    
     initial begin
-        // Exemplo de instruções em hexadecimal (pode substituir conforme necessário)
-        memory[0] = 32'h20080005; // addi $t0, $zero, 5
-        memory[1] = 32'h20090003; // addi $t1, $zero, 3
-        memory[2] = 32'h01095020; // add $t2, $t0, $t1
-        memory[3] = 32'hAC0A0004; // sw $t2, 4($zero)
-        memory[4] = 32'h8C0B0004; // lw $t3, 4($zero)
-        // Adicione mais instruções conforme necessário
+        // addi $t0, $zero, 20
+        memory[0] = 32'b001000_00000_01000_0000000000010100;  // Opcode 8, $zero(0), $t0(8), valor 20
+        
+        // addi $t1, $zero, 15
+        memory[1] = 32'b001000_00000_01001_0000000000001111;  // Opcode 8, $zero(0), $t1(9), valor 15
+        
+        // slt $s0, $t1, $t0
+        memory[2] = 32'b000000_01001_01000_10000_00000_101010; // Opcode 0, $t1(9), $t0(8), $s0(16), funct 42
+        
+        // Preenche o resto com nops
+        for (int i = 3; i < 32; i++) begin
+            memory[i] = 32'b00000000000000000000000000000000;
+        end
     end
-
+    
     always @(*) begin
-        instruction = memory[address >> 2]; // Divide por 4 para acessar corretamente
+        instruction = memory[address >> 2];
     end
 endmodule
