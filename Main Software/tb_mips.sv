@@ -1,65 +1,87 @@
-`timescale 1ns / 1ps
+`timescale 1ns/1ps
 
 module tb;
-    // Inputs
     reg clk;
     reg reset;
+    wire [31:0] t0, t1, t2, t3, s0;
     
-    // Outputs para monitoramento
-    wire [31:0] t0, t1, t2, t3;
-    
-    // Instantiate the Unit Under Test (UUT)
-    MIPS_Processor uut (
+    MIPS_Processor dut (
         .clk(clk),
         .reset(reset),
         .t0(t0),
         .t1(t1),
         .t2(t2),
-        .t3(t3)
+        .t3(t3),
+        .s0(s0)
     );
     
-    // Clock generation (10ns period)
+    // Geração de clock (100MHz)
     initial begin
         clk = 0;
         forever #5 clk = ~clk;
     end
     
-    // Monitor para acompanhar a execução
+    // Reinicialização e estímulo
     initial begin
-        $monitor("Time = %t ns | PC = %h | Instr = %h | $t0 = %h, $t1 = %h, $t2 = %h, $t3 = %h", 
-                 $time, uut.PC, uut.instruction, t0, t1, t2, t3);
-    end
-    
-    // Dump de variáveis para visualização
-    initial begin
-        $dumpfile("mips_processor.vcd");
-        $dumpvars(0, tb);
-    end
-    
-    // Test sequence
-    initial begin
-        // Inicialização com reset
+        // Inicializa e redefine
         reset = 1;
-        #20;
-        reset = 0;
+        #20 reset = 0;
         
-        // Executa por tempo suficiente para todas as instruções
+        // Percorre ciclos o suficiente
         #200;
+    end
+    
+    // Monitora todos os sinais
+    initial begin
+      $display("\n-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#");
+        $display("Simulação do Processador MIPS - Monitor de Registro Detalhado");
+        $display("-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#");
+        $display("---------------------------------------------------------------------------------------------");
+      
+      $display("Tempo\tPC\t\tInstrução\t\t$t0\t$t1\t$t2\t$t3\t$s0\tALUOp");
+      	$display("---------------------------------------------------------------------------------------------");
         
-        // Verificação dos resultados
-      	$display("\n#-#-#-# Resultado dos Testes #-#-#-#");
-      	$display("$t0 (5) = %h (Expected: 00000005)", t0);
-      	$display("$t1 (3) = %h (Expected: 00000003)", t1);
-      	$display("$t2 (8) = %h (Expected: 00000008)", t2);
-        
-        // Verificação automática
-        if (t0 === 32'h00000005 && t1 === 32'h00000003 && 
-            t2 === 32'h00000008 && t3 === 32'h00000008) begin
-            $display("PASSED: All tests completed successfully!");
-        end else begin
-            $display("FAILED: Some tests did not produce the expected results");
+        forever begin
+            @(posedge clk);
+            #1; // Pequeno atraso para deixar os sinais estabilizarem
+            $display("%0t\t%h\t%h\t%d\t%d\t%d\t%d\t%d\t%b",
+                $time,
+                dut.PC,
+                dut.instruction,
+                t0, t1, t2, t3, s0,
+                dut.ALUControl);
+         $display("----------------------------------------------------------------------------------------------------------------------------");
         end
+    end
+    
+    // Verificação automática
+    initial begin
+        #220; // Aguarde até que todas as instruções sejam concluídas
         
+      $display("\n-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#");
+      	$display("Valor final dos registradores:");
+        $display("$t0 = %d (Esperado: 20)", t0);
+        $display("$t1 = %d (Esperado: 15)", t1);
+        $display("$s0 = %d (Esperado: 1)", s0);
+      $display("-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#");
+        
+      	$display("________________________________________________________________________");
+        if (t0 === 32'd20 && t1 === 32'd15 && s0 === 32'd1) begin
+            $display("TESTE APROVADO - Todos os valores correspondem aos resultados esperados!");
+        end else begin
+            $display("TESTE FALHOU - Incompatibilidade nos valores do registrador!");
+        end
+      	$display("________________________________________________________________________");
+      
         $finish;
     end
+    
+    // Exibe de forma contínua
+    initial begin
+        $dumpfile("mips_waveform.vcd");
+        $dumpvars(0, tb);
+        $dumpvars(1, dut);
+        $dumpvars(2, dut.reg_file);
+    end
+  
 endmodule
