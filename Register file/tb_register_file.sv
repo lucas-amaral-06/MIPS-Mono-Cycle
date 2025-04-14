@@ -1,13 +1,25 @@
-module testbench;
+`timescale 1ns/1ps
 
-    // Test signals
+module tb_RegisterFile;
+
+    // Entradas
     reg clk;
     reg we;
-    reg [4:0] A1, A2, A3;
+    reg [4:0] A1;
+    reg [4:0] A2;
+    reg [4:0] A3;
     reg [31:0] WD3;
-    wire [31:0] RD1, RD2;
-
-    // Instantiate the module
+    
+    // Saídas
+    wire [31:0] RD1;
+    wire [31:0] RD2;
+    wire [31:0] t0;
+    wire [31:0] t1;
+    wire [31:0] t2;
+    wire [31:0] t3;
+    wire [31:0] s0;
+    
+    // Instancia a Unit Under Test (UUT)
     register_file uut (
         .clk(clk),
         .we(we),
@@ -16,76 +28,107 @@ module testbench;
         .A3(A3),
         .WD3(WD3),
         .RD1(RD1),
-        .RD2(RD2)
+        .RD2(RD2),
+        .t0(t0),
+        .t1(t1),
+        .t2(t2),
+        .t3(t3),
+        .s0(s0)
     );
-
-    // Clock: toggles every 5 time units
-    initial clk = 0;
-    always #5 clk = ~clk;
-
+    
+    // Geração de clock (100MHz)
     initial begin
-        // Initialization
+        clk = 0;
+        forever #5 clk = ~clk;
+    end
+    
+    // Procedimento de teste
+    initial begin
+        // Inicialização
         we = 0;
-        A1 = 5'd0;
-        A2 = 5'd0;
-        A3 = 5'd0;
-        WD3 = 32'd0;
-
-        $display("=== Starting Register File Tests ===");
-
-        // Wait a bit before starting
+        A1 = 0;
+        A2 = 0;
+        A3 = 0;
+        WD3 = 0;
+        
+        // Configura dump de waveform
+        $dumpfile("register_file.vcd");
+        $dumpvars(0, tb_RegisterFile);
+        
+        $display("=========================================");
+        $display(" Teste do Banco de Registradores");
+        $display("=========================================");
+        $display("Tempo | Operacao       | Dados");
+        $display("-----------------------------------------");
+        
+        // Teste 1: Escrita no registrador t0 ($8)
         #10;
-
-        // Attempt to write to register $0 (should be ignored)
         we = 1;
-        A3 = 5'd0;
-        WD3 = 32'hDEADBEEF;
-        #10;
-        we = 0;
-        A1 = 5'd0;
-        #1;
-        $display("Attempted to write to $0. Expected RD1 = 0. RD1 = %h", RD1);
-
-        // Write to register 5
-        we = 1;
-        A3 = 5'd5;
-        WD3 = 32'hCAFEBABE;
-        #10;
-      
-        // Read from register 5
-        we = 0;
-        A1 = 5'd5;
-        #1;
-        $display("Reading register 5. Expected RD1 = CAFEBABE. RD1 = %h", RD1);
-
-        // Simultaneous read from $0 and register 5
-        A1 = 5'd0;
-        A2 = 5'd5;
-        #1;
-        $display("Reading $0 and $5. Expected RD1 = 0, RD2 = CAFEBABE. RD1 = %h, RD2 = %h", RD1, RD2);
-
-        // Write to register 10
-        we = 1;
-        A3 = 5'd10;
+        A3 = 5'd8;  // t0
         WD3 = 32'h12345678;
+        $display("%4tns | Escrita $t0   | Valor: %h", $time, WD3);
+        
+        // Teste 2: Leitura do registrador t0
         #10;
-
-        // Read from register 10
         we = 0;
-        A1 = 5'd10;
-        #1;
-        $display("Reading register 10. Expected RD1 = 12345678. RD1 = %h", RD1);
-
-        $display("=== End of Tests ===");
-      
-        // Simultaneous read from registers 5 and 10
-        A1 = 5'd5;
-        A2 = 5'd10;
-        #1;
-        $display("Reading $5 and $10. Expected RD1 = CAFEBABE, RD2 = 12345678. RD1 = %h, RD2 = %h", RD1, RD2);
-      
-        $display("=== End of Tests ===");
+        A1 = 5'd8;
+        $display("%4tns | Leitura $t0   | Valor: %h", $time, RD1);
+        
+        // Teste 3: Escrita no registrador t1 ($9)
+        #10;
+        we = 1;
+        A3 = 5'd9;  // t1
+        WD3 = 32'hABCDEF01;
+        $display("%4tns | Escrita $t1   | Valor: %h", $time, WD3);
+        
+        // Teste 4: Escrita no registrador s0 ($16)
+        #10;
+        A3 = 5'd16; // s0
+        WD3 = 32'h55AA55AA;
+        $display("%4tns | Escrita $s0   | Valor: %h", $time, WD3);
+        
+        // Teste 5: Leitura múltipla
+        #10;
+        we = 0;
+        A1 = 5'd8;  // t0
+        A2 = 5'd9;  // t1
+        $display("%4tns | Leitura $t0-1 | $t0: %h, $t1: %h", $time, RD1, RD2);
+        
+        // Teste 6: Tentativa de escrita no $zero
+        #10;
+        we = 1;
+        A3 = 5'd0;  // $zero
+        WD3 = 32'hDEADBEEF;
+        $display("%4tns | Escrita $zero | (deve ser ignorada)");
+        
+        // Teste 7: Verificação final
+        #10;
+        we = 0;
+        A1 = 5'd0;  // $zero
+        A2 = 5'd16; // s0
+        $display("%4tns | Verificacao   | $zero: %h, $s0: %h", $time, RD1, RD2);
+        
+        // Verificação automática
+        #10;
+        $display("\nResultados da Verificacao:");
+        verificar_registrador(8, 32'h12345678, "$t0");
+        verificar_registrador(9, 32'hABCDEF01, "$t1");
+        verificar_registrador(16, 32'h55AA55AA, "$s0");
+        verificar_registrador(0, 32'h00000000, "$zero");
+        
+        $display("=========================================");
         $finish;
     end
+    
+    // Tarefa para verificação automática
+    task verificar_registrador(input [4:0] addr, input [31:0] esperado, input string nome);
+        A1 = addr;
+        #1;
+        if (RD1 === esperado) begin
+            $display("[SUCESSO] %s = %h", nome, RD1);
+        end else begin
+            $display("[FALHA] %s deveria ser %h, mas eh %h", nome, esperado, RD1);
+        end
+    endtask
 
 endmodule
