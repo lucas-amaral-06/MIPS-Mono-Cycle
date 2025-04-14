@@ -1,3 +1,7 @@
-addi $t0, $zero, 5    # $t0 = 5
-addi $t1, $zero, 3    # $t1 = 3
-add $t2, $t0, $t1     # $t2 = $t0 + $t1 (5 + 3 = 8)
+	# Carrega valores nos registradores
+    addi $t0, $zero, 20    # $t0 = primeiro número
+    addi $t1, $zero, 15    # $t1 = segundo número
+    
+    # Comparação básica (t0 > t1?)
+    slt $s0, $t1, $t0      # $s0 = 1 se t0 > t1, senão 0
+    
