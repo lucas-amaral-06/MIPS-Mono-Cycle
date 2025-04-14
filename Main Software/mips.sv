@@ -136,16 +136,16 @@ module InstructionMemory(
     reg [31:0] memory[0:31];
     
     initial begin
-        // addi $t0, $zero, 5
-        memory[0] = 32'b001000_00000_01000_0000000000000101;  // Opcode 8, $zero(0), $t0(8), valor 5
+        // addi $t0, $zero, 20
+        memory[0] = 32'b001000_00000_01000_0000000000010100;  // Opcode 8, $zero(0), $t0(8), valor 20
         
-        // addi $t1, $zero, 3
-        memory[1] = 32'b001000_00000_01001_0000000000000011;  // Opcode 8, $zero(0), $t1(9), valor 3
+        // addi $t1, $zero, 15
+        memory[1] = 32'b001000_00000_01001_0000000000001111;  // Opcode 8, $zero(0), $t1(9), valor 15
         
-        // add $t2, $t0, $t1
-        memory[2] = 32'b000000_01000_01001_01010_00000_100000; // Opcode 0, $t0(8), $t1(9), $t2(10), funct 32
+        // slt $s0, $t1, $t0
+        memory[2] = 32'b000000_01001_01000_10000_00000_101010; // Opcode 0, $t1(9), $t0(8), $s0(16), funct 42
         
-        // Preenche o resto com nops (todos zeros)
+        // Preenche o resto com nops
         for (int i = 3; i < 32; i++) begin
             memory[i] = 32'b00000000000000000000000000000000;
         end
@@ -196,18 +196,19 @@ endmodule
 
 // Banco de Registradores com saídas de monitoramento
 module register_file (
-    input clk,
-    input we,
-    input [4:0] A1,
-    input [4:0] A2,
-    input [4:0] A3,
-    input [31:0] WD3,
-    output [31:0] RD1,
-    output [31:0] RD2,
-    output [31:0] t0,  // $8
-    output [31:0] t1,  // $9
-    output [31:0] t2,  // $10
-    output [31:0] t3   // $11
+    input wire clk,
+    input wire we,
+    input wire [4:0] A1,
+    input wire [4:0] A2,
+    input wire [4:0] A3,
+    input wire [31:0] WD3,
+    output wire [31:0] RD1,
+    output wire [31:0] RD2,
+    output wire [31:0] t0,
+    output wire [31:0] t1,
+    output wire [31:0] t2,
+    output wire [31:0] t3,
+    output wire [31:0] s0
 );
     reg [31:0] regs [31:0];
     
@@ -218,6 +219,7 @@ module register_file (
     assign t1 = regs[9];
     assign t2 = regs[10];
     assign t3 = regs[11];
+    assign s0 = regs[16];
     
     always @(posedge clk) begin
         if (we && A3 != 5'd0) begin
@@ -241,7 +243,8 @@ module MIPS_Processor (
     output [31:0] t0,
     output [31:0] t1,
     output [31:0] t2,
-    output [31:0] t3
+  	output [31:0] t3,
+  	output [31:0] s0
 );
     // Declaração de sinais
     wire [31:0] PC, PC_plus_4, next_PC;
@@ -315,7 +318,8 @@ module MIPS_Processor (
         .t0(t0),
         .t1(t1),
         .t2(t2),
-        .t3(t3)
+      	.t3(t3),
+      	.s0(s0)
     );
 
     // MUX para seleção do registrador de escrita
