@@ -1,4 +1,4 @@
-	# Carrega valores nos registradores
+    # Carrega valores nos registradores
     addi $t0, $zero, 20    # $t0 = primeiro número
     addi $t1, $zero, 15    # $t1 = segundo número
     
