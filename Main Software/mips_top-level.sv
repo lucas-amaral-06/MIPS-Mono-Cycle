@@ -1,21 +1,36 @@
 `timescale 1ns / 1ps
 
-module MIPS_Processor(
+module MIPS_Processor (
     input wire clk,
-    input wire reset
+    input wire reset,
+    output [31:0] t0,
+    output [31:0] t1,
+    output [31:0] t2,
+  	output [31:0] t3,
+  	output [31:0] s0
 );
-    // --- Sinais de interconexão ---
-    wire [31:0] PC, next_PC, PC_plus_4, instruction;
-    wire [5:0] opcode = instruction[31:26];
-    wire [4:0] rs = instruction[25:21], rt = instruction[20:16], rd = instruction[15:11];
-    wire [5:0] funct = instruction[5:0];
-    wire [31:0] read_data1, read_data2, sign_extended, ALU_src2, ALU_result;
-    wire [31:0] read_data_mem, write_back_data, PCBranch_out;
-    wire zero_flag, PCSrc;
-    wire [3:0] ALUControl;
+    // Declaração de sinais
+    wire [31:0] PC, PC_plus_4, next_PC;
+    wire [31:0] instruction;
+    wire [5:0] opcode, funct;
+    wire [4:0] rs, rt, rd, shamt;
+    wire [15:0] immediate;
+    wire [25:0] jump_target;
+    
+    // Sinais de controle
     wire RegWrite, RegDst, ALUSrc, Branch, MemWrite, MemtoReg, Jump;
+    wire [3:0] ALUControl;
+    
+    // Sinais do caminho de dados
+    wire [31:0] read_data1, read_data2;
+    wire [4:0] write_reg;
+    wire [31:0] sign_extended, ALU_src2, ALU_result;
+    wire [31:0] read_data_mem, write_back_data;
+    wire [31:0] PCBranch_out;
+    wire zero_flag;
+    wire PCSrc;
 
-    // --- Instanciação dos módulos ---
+    // Conexão do PC
     pc_register PC_reg (
         .clk(clk),
         .reset(reset),
@@ -23,11 +38,23 @@ module MIPS_Processor(
         .PC(PC)
     );
 
+    // Memória de instruções
     InstructionMemory IM (
         .address(PC),
         .instruction(instruction)
     );
 
+    // Decodificação da instrução
+    assign opcode = instruction[31:26];
+    assign rs = instruction[25:21];
+    assign rt = instruction[20:16];
+    assign rd = instruction[15:11];
+    assign shamt = instruction[10:6];
+    assign funct = instruction[5:0];
+    assign immediate = instruction[15:0];
+    assign jump_target = instruction[25:0];
+
+    // Unidade de controle
     ControlUnit control (
         .Op(opcode),
         .Funct(funct),
@@ -41,6 +68,7 @@ module MIPS_Processor(
         .ALUControl(ALUControl)
     );
 
+    // Banco de registradores
     register_file reg_file (
         .clk(clk),
         .we(RegWrite),
@@ -49,9 +77,15 @@ module MIPS_Processor(
         .A3(write_reg),
         .WD3(write_back_data),
         .RD1(read_data1),
-        .RD2(read_data2)
+        .RD2(read_data2),
+        .t0(t0),
+        .t1(t1),
+        .t2(t2),
+      	.t3(t3),
+      	.s0(s0)
     );
 
+    // MUX para seleção do registrador de escrita
     MUX5bits reg_dst_mux (
         .A(rt),
         .B(rd),
@@ -59,11 +93,13 @@ module MIPS_Processor(
         .Y(write_reg)
     );
 
+    // Extensão de sinal
     sign_extend sign_ext (
-        .imm16(instruction[15:0]),
+        .imm16(immediate),
         .extended(sign_extended)
     );
 
+    // MUX para seleção do segundo operando da ALU
     Mux2to1_32bits alu_src_mux (
         .A(read_data2),
         .B(sign_extended),
@@ -71,6 +107,7 @@ module MIPS_Processor(
         .Out(ALU_src2)
     );
 
+    // ALU
     ALU alu (
         .A(read_data1),
         .B(ALU_src2),
@@ -79,6 +116,7 @@ module MIPS_Processor(
         .zero_flag(zero_flag)
     );
 
+    // Memória de dados
     data_memory data_mem (
         .clk(clk),
         .mem_write(MemWrite),
@@ -87,6 +125,7 @@ module MIPS_Processor(
         .read_data(read_data_mem)
     );
 
+    // MUX para seleção do dado de write-back
     Mux2to1_32bits mem_to_reg_mux (
         .A(ALU_result),
         .B(read_data_mem),
@@ -94,21 +133,27 @@ module MIPS_Processor(
         .Out(write_back_data)
     );
 
+    // Cálculo de PC+4
     assign PC_plus_4 = PC + 4;
-    assign PCSrc = Branch & zero_flag;
 
+    // Cálculo do branch
     PCBranch branch_calc (
         .PC(PC_plus_4),
-        .immediate(instruction[15:0]),
+        .immediate(immediate),
         .PCBranch(PCBranch_out)
     );
 
-    PCSrc pc_src (
+    // Lógica de PCSrc (Branch AND Zero)
+    assign PCSrc = Branch & zero_flag;
+
+    // MUX para seleção do próximo PC
+    PCSrc pc_src_mux (
         .Branch(PCSrc),
         .Jump(Jump),
         .PCPlus4(PC_plus_4),
         .PCBranch(PCBranch_out),
-        .JumpImm(instruction[25:0]),
+        .JumpImm(jump_target),
         .next_PC(next_PC)
     );
+
 endmodule
