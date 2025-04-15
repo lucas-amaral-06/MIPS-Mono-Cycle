@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module ControlUnit(
+module ControlUnit(  // Gera sinais de controle para os diversos blocos do processador
     input [5:0] Op, 
     input [5:0] Funct,
     output reg MemtoReg, MemWrite, Branch, ALUSrc, RegDst, RegWrite, Jump,
@@ -8,7 +8,8 @@ module ControlUnit(
 );
 
 always @(*) begin
-    // Defaults
+    // Defaults  // Evita que qualquer sinal fique com valor indefinido. Depois, o case (Op) define os sinais corretos conforme a instrução.
+
     MemtoReg = 0;
     MemWrite = 0;
     Branch = 0;
@@ -52,7 +53,7 @@ always @(*) begin
         6'b001000: begin // ADDI
             ALUSrc = 1;
             RegWrite = 1;
-            ALUControl = 4'b0010;
+            ALUControl = 4'b0010;   // Esse módulo é quem traduz a instrução binária em sinais de controle que ativam/desativam partes do processador de forma correta.
         end
     endcase
 end
